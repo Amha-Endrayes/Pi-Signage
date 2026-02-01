@@ -2,7 +2,7 @@
 
 A DIY, lightweight, and powerful digital signage system designed for Raspberry Pi (and other Linux/Windows machines). Featuring a stunning glassmorphism dashboard and instant real-time controls.
 
-![CIKET Signage Pro](https://via.placeholder.com/800x450?text=CIKET+Signage+Pro+Dashboard)
+![CIKET Signage Pro](https://placehold.co/800x450?text=CIKET+Signage+Pro+Dashboard)
 
 ## ✨ Features
 
