@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIKET Signage Pro - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent-primary: #8b5cf6;
+            --accent-secondary: #06b6d4;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --danger: #ef4444;
+            --success: #22c55e;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            padding: 40px;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .logo-section h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 600;
+            background: linear-gradient(to right, #a78bfa, #22d3ee);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Control Center */
+        .control-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .mode-toggle-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .playback-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        /* Mode Switcher */
+        .switch-container {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 50px;
+            padding: 5px;
+            position: relative;
+            width: 240px;
+        }
+
+        .switch-option {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            cursor: pointer;
+            z-index: 1;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .switch-option.active-text {
+            color: #000;
+        }
+
+        .switch-slider {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: calc(50% - 5px);
+            height: calc(100% - 10px);
+            background: var(--accent-secondary);
+            border-radius: 40px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Buttons */
+        .btn {
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-icon {
+            padding: 12px;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            justify-content: center;
+        }
+
+        /* Main Content Grid */
+        .content-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 30px;
+        }
+
+        .section-title {
+            margin: 0 0 20px 0;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Video Items */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .video-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .video-card:hover {
+            border-color: var(--accent-secondary);
+        }
+
+        .video-card h4 {
+            margin: 0 0 10px 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .video-meta {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .card-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* Playlist */
+        .playlist-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .playlist-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid transparent;
+        }
+
+        .playlist-item:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Status Indicator */
+        .status-pill {
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-online {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+        }
+
+        .live-pulse {
+            width: 10px;
+            height: 10px;
+            background: #4ade80;
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(74, 222, 128, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+            }
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            .content-layout {
+                grid-template-columns: 1fr;
+            }
+
+            body {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: center;
+                text-align: center;
+                margin-bottom: 30px;
+            }
+
+            #now-playing-container {
+                margin: 0;
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .control-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .mode-toggle-card {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .switch-container {
+                width: 100%;
+            }
+
+            .playback-controls {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-section h1 {
+                font-size: 1.5rem;
+            }
+
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .glass-card {
+                padding: 20px;
+            }
+
+            header {
+                padding: 0 10px;
+            }
+        }
+
+        /* Upload Progress */
+        .upload-progress-container {
+            display: none;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 25px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .progress-track {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+            transition: width 0.3s ease;
+            box-shadow: 0 0 15px var(--accent-primary);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo-section">
+            <h1>CIKET Signage <span style="font-weight: 300;">PRO</span></h1>
+        </div>
+        <div id="now-playing-container" class="glass-card"
+            style="padding: 10px 20px; border-radius: 50px; display: flex; align-items: center; gap: 15px; margin: 0 20px;">
+            <div
+                style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); font-weight: 600;">
+                Now Playing</div>
+            <div id="now-playing-text"
+                style="font-weight: 600; color: var(--accent-secondary); max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                {{ state.now_playing }}
+            </div>
+            <div class="live-pulse"></div>
+        </div>
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <div class="status-pill status-online">
+                <span style="width: 8px; height: 8px; background: currentColor; border-radius: 50%;"></span>
+                System Live
+            </div>
+            <a href="/logout" class="btn btn-secondary" style="padding: 8px 16px;">Logout</a>
+        </div>
+    </header>
+
+    <div class="control-grid">
+        <div class="glass-card mode-toggle-card">
+            <div>
+                <h3 style="margin: 0; font-size: 1rem;">Playback Mode</h3>
+                <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: var(--text-dim);">Switch between single loop and
+                    playlist</p>
+            </div>
+            <div class="switch-container">
+                <div id="slider" class="switch-slider"
+                    style="transform: {{ 'translateX(100%)' if state.mode == 'playlist' else 'translateX(0)' }}"></div>
+                <div class="switch-option {{ 'active-text' if state.mode == 'single' }}" onclick="updateMode('single')">
+                    Single Clip</div>
+                <div class="switch-option {{ 'active-text' if state.mode == 'playlist' }}"
+                    onclick="updateMode('playlist')">Playlist</div>
+            </div>
+        </div>
+
+        <div class="glass-card mode-toggle-card">
+            <div>
+                <h3 style="margin: 0; font-size: 1rem;">Global Controls</h3>
+                <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: var(--text-dim);">Master override for all devices
+                </p>
+            </div>
+            <div class="playback-controls">
+                <button class="btn btn-secondary" onclick="triggerRestart()" title="Restart Player">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </button>
+                <button id="playPauseBtn"
+                    class="btn btn-icon {{ 'btn-primary' if state.paused == 'true' else 'btn-secondary' }}"
+                    onclick="togglePlayback()">
+                    {% if state.paused == 'true' %}
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z" />
+                    </svg>
+                    {% else %}
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                    </svg>
+                    {% endif %}
+                </button>
+                <span id="controlStatusText" style="font-weight: 600; min-width: 60px;">{{ 'Paused' if state.paused ==
+                    'true' else 'Playing' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-layout">
+        <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                <h2 class="section-title">Video Library</h2>
+                <div style="display: flex; gap: 10px;">
+                    <input type="file" id="fileInput" hidden accept=".mp4,.mkv,.avi,.mov" onchange="handleUpload()">
+                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">+ Upload
+                        Video</button>
+                </div>
+            </div>
+
+            <div id="uploadProgress" class="upload-progress-container">
+                <div class="progress-info">
+                    <span id="uploadStatusText">Uploading video...</span>
+                    <span id="uploadPercentText">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div id="uploadProgressBar" class="progress-fill"></div>
+                </div>
+            </div>
+
+            <div class="video-grid">
+                {% for video in videos %}
+                <div class="video-card">
+                    <h4>{{ video.filename }}</h4>
+                    <div class="video-meta">
+                        <span class="tag">Rotation: {{ video.rotation }}°</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-secondary" style="font-size: 0.8rem;"
+                            onclick="rotateVideo({{ video.id }}, {{ video.rotation }})">Rotate</button>
+                        <button class="btn btn-secondary" style="font-size: 0.8rem;"
+                            onclick="addToPlaylist({{ video.id }})">+ Queue</button>
+                        <button class="btn btn-primary" style="grid-column: span 2;"
+                            onclick="playNow({{ video.id }})">Play Now</button>
+                        <button class="btn btn-danger" style="grid-column: span 2; margin-top: 10px; font-size: 0.8rem;"
+                            onclick="deleteVideo({{ video.id }})">Remove</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <h2 class="section-title">Active Queue</h2>
+            <div class="playlist-list" id="playlist-container">
+                {% for item in playlist %}
+                <div class="playlist-item" data-id="{{ item.id }}">
+                    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px;">
+                        {{ loop.index }}. {{ item.filename }}
+                    </span>
+                    <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;"
+                        onclick="this.parentElement.remove()">X</button>
+                </div>
+                {% endfor %}
+            </div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 20px; justify-content: center;"
+                onclick="savePlaylist()">
+                Save Order
+            </button>
+        </div>
+    </div>
+
+    <script>
+        async function api(url, body = {}) {
+            return fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            }).then(r => r.json());
+        }
+
+        async function handleUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const progressContainer = document.getElementById('uploadProgress');
+            const progressBar = document.getElementById('uploadProgressBar');
+            const percentText = document.getElementById('uploadPercentText');
+            const statusText = document.getElementById('uploadStatusText');
+
+            // Show progress UI
+            progressContainer.style.display = 'block';
+            statusText.innerText = `Uploading: ${file.name}`;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const xhr = new XMLHttpRequest();
+
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    progressBar.style.width = percent + '%';
+                    percentText.innerText = percent + '%';
+                    if (percent === 100) {
+                        statusText.innerText = "Processing & Saving...";
+                    }
+                }
+            };
+
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    const res = JSON.parse(xhr.responseText);
+                    if (res.success) {
+                        statusText.innerText = "Upload Complete!";
+                        setTimeout(() => location.reload(), 500);
+                    } else {
+                        alert('Upload failed: ' + (res.error || 'Unknown error'));
+                        progressContainer.style.display = 'none';
+                    }
+                } else {
+                    alert('Upload failed with status ' + xhr.status);
+                    progressContainer.style.display = 'none';
+                }
+            };
+
+            xhr.onerror = () => {
+                alert('An error occurred during upload.');
+                progressContainer.style.display = 'none';
+            };
+
+            xhr.open('POST', '/api/upload');
+            xhr.send(formData);
+        }
+
+        async function updateMode(mode) {
+            await api('/api/state', { mode });
+            location.reload();
+        }
+
+        async function togglePlayback() {
+            const isPaused = "{{ state.paused }}" === 'true';
+            await api('/api/state', { paused: !isPaused });
+            location.reload();
+        }
+
+        async function playNow(id) {
+            await api('/api/state', { mode: 'single', current_video_id: id, paused: false });
+            location.reload();
+        }
+
+        async function rotateVideo(id, cur) {
+            await api(`/api/rotate/${id}`, { rotation: (cur + 90) % 360 });
+            location.reload();
+        }
+
+        async function deleteVideo(id) {
+            if (!confirm('Delete permanently?')) return;
+            await fetch(`/api/delete/${id}`, { method: 'POST' });
+            location.reload();
+        }
+
+        async function addToPlaylist(id) {
+            const items = document.querySelectorAll('.playlist-item');
+            const ids = Array.from(items).map(el => el.dataset.id);
+            ids.push(id);
+            await api('/api/playlist', { video_ids: ids });
+            location.reload();
+        }
+
+        async function savePlaylist() {
+            const items = document.querySelectorAll('.playlist-item');
+            const ids = Array.from(items).map(el => el.dataset.id);
+            await api('/api/playlist', { video_ids: ids });
+            location.reload();
+        }
+
+        async function triggerRestart() {
+            if (confirm('Restart all clients?')) {
+                await api('/api/restart');
+                alert('Restart signal sent.');
+            }
+        }
+        async function updateLiveStatus() {
+            try {
+                const r = await fetch('/api/manifest');
+                const data = await r.json();
+
+                // Update Now Playing text
+                const textEl = document.getElementById('now-playing-text');
+                if (textEl) textEl.innerText = data.now_playing;
+
+                // Update System Status Pill (green if heartbeat < 10s)
+                const now = Math.floor(Date.now() / 1000);
+                const hb = parseInt(data.last_heartbeat || 0);
+                const pill = document.querySelector('.status-pill');
+                if (pill) {
+                    if (now - hb < 10) {
+                        pill.className = 'status-pill status-online';
+                        pill.innerHTML = '<span style="width: 8px; height: 8px; background: currentColor; border-radius: 50%;"></span> System Live';
+                    } else {
+                        pill.className = 'status-pill';
+                        pill.style.background = 'rgba(239, 68, 68, 0.1)';
+                        pill.style.color = '#f87171';
+                        pill.innerHTML = '<span style="width: 8px; height: 8px; background: currentColor; border-radius: 50%;"></span> Client Offline';
+                    }
+                }
+            } catch (e) { console.error('Status poll failed', e); }
+        }
+
+        setInterval(updateLiveStatus, 2000);
+        updateLiveStatus();
+    </script>
+
+</body>
+
+</html>

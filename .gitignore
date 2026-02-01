@@ -1,0 +1,43 @@
+# --------------------
+# Python virtual env
+# --------------------
+.venv/
+venv/
+env/
+
+# --------------------
+# Python cache files
+# --------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --------------------
+# Media files (signage content)
+# --------------------
+*.mp4
+*.avi
+*.mkv
+*.mov
+*.webm
+
+# --------------------
+# Database files (local dev only)
+# --------------------
+*.db
+*.sqlite
+*.sqlite3
+
+# --------------------
+# OS / Editor junk
+# --------------------
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# --------------------
+# Logs
+# --------------------
+*.log
