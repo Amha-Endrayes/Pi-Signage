@@ -140,7 +140,6 @@ class Player:
             "--fs",
             f"--input-ipc-server={self.ipc_path}",
             "--force-window=yes",
-            "--background=000000",
             "--osd-level=0",
             "--no-terminal",
         ]

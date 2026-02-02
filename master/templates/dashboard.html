@@ -391,6 +391,69 @@
                 transform: translateY(0);
             }
         }
+
+        /* Settings Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            width: 400px;
+            max-width: 90%;
+            padding: 30px;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: white;
+        }
+
+        .settings-btn {
+            padding: 10px;
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .settings-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: rotate(45deg);
+        }
     </style>
 </head>
 
@@ -416,6 +479,13 @@
                 <span style="width: 8px; height: 8px; background: currentColor; border-radius: 50%;"></span>
                 System Live
             </div>
+            <button class="settings-btn" onclick="toggleModal(true)" title="Advanced Settings">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </button>
             <a href="/logout" class="btn btn-secondary" style="padding: 8px 16px;">Logout</a>
         </div>
     </header>
@@ -539,6 +609,33 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
             }).then(r => r.json());
+        }
+
+        function toggleModal(show) {
+            const modal = document.getElementById('settingsModal');
+            modal.style.display = show ? 'flex' : 'none';
+        }
+
+        async function updatePin() {
+            const pinEl = document.getElementById('modalPinInput');
+            const pin = pinEl.value;
+            if (!pin || !/^\d+$/.test(pin)) {
+                alert('Please enter a numeric PIN');
+                return;
+            }
+            if (pin.length < 4) {
+                alert('PIN should be at least 4 digits');
+                return;
+            }
+
+            const res = await api('/api/pin', { pin });
+            if (res.success) {
+                alert('PIN updated successfully!');
+                pinEl.value = '';
+                toggleModal(false);
+            } else {
+                alert('Failed to update PIN: ' + (res.error || 'Unknown error'));
+            }
         }
 
         async function handleUpload() {
@@ -674,6 +771,36 @@
         setInterval(updateLiveStatus, 2000);
         updateLiveStatus();
     </script>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal-overlay" onclick="if(event.target === this) toggleModal(false)">
+        <div class="glass-card modal-content">
+            <div class="modal-header">
+                <h2 style="margin: 0; font-size: 1.25rem;">Advanced Settings</h2>
+                <button class="close-btn" onclick="toggleModal(false)">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <h3 style="margin: 0 0 10px 0; font-size: 1rem;">Dashboard PIN</h3>
+                <p style="margin: 0 0 15px 0; font-size: 0.85rem; color: var(--text-dim);">Change the entry code for
+                    this dashboard</p>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="modalPinInput" placeholder="New PIN" maxlength="8"
+                        style="background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: white; padding: 10px 15px; border-radius: 10px; flex: 1; outline: none;">
+                    <button class="btn btn-primary" onclick="updatePin()">Update PIN</button>
+                </div>
+            </div>
+
+            <div
+                style="padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); color: var(--text-dim); font-size: 0.8rem;">
+                CIKET Signage Pro v1.2.0-stable
+            </div>
+        </div>
+    </div>
 
 </body>
 

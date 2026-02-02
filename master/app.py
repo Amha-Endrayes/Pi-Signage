@@ -6,7 +6,6 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key_change_this'
-PIN_CODE = '1234'  # Fixed PIN as requested
 
 UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'videos')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -30,7 +29,9 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        if request.form.get('pin') == PIN_CODE:
+        state = database.get_state()
+        db_pin = state.get('pin', '1234')
+        if request.form.get('pin') == db_pin:
             session['logged_in'] = True
             return redirect(url_for('index'))
         else:
@@ -128,6 +129,20 @@ def update_playlist():
     data = request.json
     # Expects {'video_ids': [1, 3, 2]}
     database.set_playlist(data.get('video_ids', []))
+    return jsonify({'success': True})
+
+@app.route('/api/pin', methods=['POST'])
+def update_pin():
+    if not session.get('logged_in'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.json
+    new_pin = data.get('pin')
+    
+    if not new_pin or not str(new_pin).isdigit():
+        return jsonify({'error': 'PIN must be numeric'}), 400
+        
+    database.set_state('pin', str(new_pin))
     return jsonify({'success': True})
 
 @app.route('/api/status', methods=['POST'])

@@ -45,6 +45,7 @@ def init_db():
     c.execute("INSERT OR IGNORE INTO state (key, value) VALUES ('restart_id', '0')")
     c.execute("INSERT OR IGNORE INTO state (key, value) VALUES ('now_playing', 'Stopped')")
     c.execute("INSERT OR IGNORE INTO state (key, value) VALUES ('last_heartbeat', '0')")
+    c.execute("INSERT OR IGNORE INTO state (key, value) VALUES ('pin', '1234')")
     
     conn.commit()
     conn.close()
